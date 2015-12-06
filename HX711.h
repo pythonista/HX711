@@ -10,9 +10,9 @@
 class HX711
 {
 	private:
-		byte PD_SCK;	// Power Down and Serial Clock Input Pin
-		byte DOUT;		// Serial Data Output Pin
-		byte GAIN;		// amplification factor
+		int PD_SCK;	// Power Down and Serial Clock Input Pin
+		int DOUT;		// Serial Data Output Pin
+		int GAIN;		// amplification factor
 		long OFFSET;	// used for tare weight
 		double SCALE;	// used to return weight in grams, kg, ounces, whatever
 
@@ -20,7 +20,7 @@ class HX711
 		// define clock and data pin, channel, and gain factor
 		// channel selection is made by passing the appropriate gain: 128 or 64 for channel A, 32 for channel B
 		// gain: 128 or 64 for channel A; channel B works with 32 gain factor only
-		HX711(byte dout, byte pd_sck, byte gain = 128);
+		HX711(int dout, int pd_sck, int gain = 128);
 
 		virtual ~HX711();
 
@@ -32,23 +32,23 @@ class HX711
 		// set the gain factor; takes effect only after a call to read()
 		// channel A can be set for a 128 or 64 gain; channel B has a fixed 32 gain
 		// depending on the parameter, the channel is also set to either A or B
-		void set_gain(byte gain = 128);
+		void set_gain(int gain = 128);
 
 		// waits for the chip to be ready and returns a reading
 		long read();
 
 		// returns an average reading; times = how many times to read
-		long read_average(byte times = 10);
+		long read_average(int times = 10);
 
 		// returns (read_average() - OFFSET), that is the current value without the tare weight; times = how many readings to do
-		long get_value(byte times = 1);
+		long get_value(int times = 1);
 
 		// returns get_value() divided by SCALE, that is the raw value divided by a value obtained via calibration
 		// times = how many readings to do
-		double get_units(byte times = 1);
+		double get_units(int times = 1);
 
 		// set the OFFSET value for tare weight; times = how many times to read the tare value
-		void tare(byte times = 10);
+		void tare(int times = 10);
 
 		// set the SCALE value; this value is used to convert the raw data to "human readable" data (measure units)
 		void set_scale(double scale = 1.);

@@ -1,17 +1,18 @@
 #include <Arduino.h>
+#include "CyberLib.h"
 #include "HX711.h"
 
-HX711::HX711(byte dout, byte pd_sck, byte gain)
+HX711::HX711(int dout, int pd_sck, int gain)
 {
-	PD_SCK 	= pd_sck;
-	DOUT 	= dout;
+	PD_SCK = pd_sck;
+	DOUT = dout;
 
-	pinMode(PD_SCK, OUTPUT);
-	pinMode(DOUT, INPUT);
+	D_Out(PD_SCK);
+	D_In(DOUT);
 
-	digitalWrite(PD_SCK, HIGH);
-	delayMicroseconds(100);
-	digitalWrite(PD_SCK, LOW);
+//	D_High(PD_SCK);
+//	delay_us(100);
+//	D_Low(PD_SCK);
 
 	set_gain(gain);
 }
@@ -20,10 +21,11 @@ HX711::~HX711(){}
 
 bool HX711::is_ready()
 {
-	return digitalRead(DOUT) == LOW;
+    //Serial.println(D_Read(DOUT), " ", digitalRead(DOUT));
+	return D_Read(DOUT) == LOW;
 }
 
-void HX711::set_gain(byte gain)
+void HX711::set_gain(int gain)
 {
 	switch (gain) {
 		case 128:		// channel A, gain factor 128
@@ -37,7 +39,7 @@ void HX711::set_gain(byte gain)
 			break;
 	}
 
-	digitalWrite(PD_SCK, LOW);
+	D_Low(PD_SCK);
 	read();
 }
 
@@ -56,10 +58,11 @@ long HX711::read()
     data[0] = shiftIn(DOUT, PD_SCK, MSBFIRST);
 
 	// set the channel and the gain factor for the next reading using the clock pin
-	for (unsigned int i = 0; i < GAIN; i++) {
-			digitalWrite(PD_SCK, HIGH);
-			digitalWrite(PD_SCK, LOW);
-		}
+	for (unsigned int i = 0; i < GAIN; i++)
+    {
+        D_High(PD_SCK);
+        D_Low(PD_SCK);
+    }
 
     // Datasheet indicates the value is returned as a two's complement value
     // Flip all the bits
@@ -68,11 +71,16 @@ long HX711::read()
     data[0] = ~data[0];
 
     // Replicate the most significant bit to pad out a 32-bit signed integer
-    if ( data[2] & 0x80 ) {
+    if ( data[2] & 0x80 )
+    {
         filler = 0xFF;
-    } else if ((0x7F == data[2]) && (0xFF == data[1]) && (0xFF == data[0])) {
+    }
+    else if ((0x7F == data[2]) && (0xFF == data[1]) && (0xFF == data[0]))
+    {
         filler = 0xFF;
-    } else {
+    }
+    else
+    {
         filler = 0x00;
 	}
 
@@ -86,27 +94,27 @@ long HX711::read()
     return static_cast<long>(++value);
 }
 
-long HX711::read_average(byte times)
+long HX711::read_average(int times)
 {
 	double sum = 0.;
-	for (byte i = 0; i < times; i++)
+	for (int i = 0; i < times; i++)
     {
 		sum += read();
 	}
 	return sum / times;
 }
 
-long HX711::get_value(byte times)
+long HX711::get_value(int times)
 {
 	return read_average(times) - OFFSET;
 }
 
-double HX711::get_units(byte times)
+double HX711::get_units(int times)
 {
 	return get_value(times) / SCALE;
 }
 
-void HX711::tare(byte times)
+void HX711::tare(int times)
 {
 	set_offset(read_average(times));
 }
@@ -123,10 +131,10 @@ void HX711::set_offset(long offset)
 
 void HX711::power_down()
 {
-	digitalWrite(PD_SCK, LOW);
-	digitalWrite(PD_SCK, HIGH);
+	D_Low(PD_SCK);
+	D_High(PD_SCK);
 }
 
 void HX711::power_up() {
-	digitalWrite(PD_SCK, LOW);	
+	D_Low(PD_SCK);
 }

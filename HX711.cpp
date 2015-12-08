@@ -10,19 +10,11 @@ HX711::HX711(int dout, int pd_sck, int gain)
 	D_Out(PD_SCK);
 	D_In(DOUT);
 
-//	D_High(PD_SCK);
-//	delay_us(100);
-//	D_Low(PD_SCK);
+	D_High(PD_SCK);
+	delayMicroseconds(100);
+	D_Low(PD_SCK);
 
 	set_gain(gain);
-}
-
-HX711::~HX711(){}
-
-bool HX711::is_ready()
-{
-    //Serial.println(D_Read(DOUT), " ", digitalRead(DOUT));
-	return D_Read(DOUT) == LOW;
 }
 
 void HX711::set_gain(int gain)
@@ -46,7 +38,7 @@ void HX711::set_gain(int gain)
 long HX711::read()
 {
 	// wait for the chip to become ready
-	while (!is_ready());
+	while (D_Read(DOUT) == HIGH);
 
     unsigned long value = 0;
     byte data[3] = { 0 };
@@ -91,6 +83,7 @@ long HX711::read()
             | static_cast<unsigned long>(data[0]) );
 
     // ... and add 1
+    Serial.println(value);
     return static_cast<long>(++value);
 }
 

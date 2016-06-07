@@ -14,7 +14,7 @@ class HX711
 		int DOUT;		// Serial Data Output Pin
 		int GAIN;		// amplification factor
 		long OFFSET;	// used for tare weight
-		double SCALE;	// used to return weight in grams, kg, ounces, whatever
+		float SCALE;	// used to return weight in grams, kg, ounces, whatever
 
 	public:
 		// define clock and data pin, channel, and gain factor
@@ -43,7 +43,7 @@ class HX711
 
 		// returns get_value() divided by SCALE, that is the raw value divided by a value obtained via calibration
 		// times = how many readings to do
-		double get_units(int times = 1);
+		float get_units(int times = 1);
 
 		// set the OFFSET value for tare weight; times = how many times to read the tare value
 		void tare(int times = 10);
